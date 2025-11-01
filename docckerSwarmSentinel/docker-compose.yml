@@ -1,0 +1,55 @@
+version: '3.7'
+
+# 定义一个外部网络，供所有服务共享
+networks:
+  redis_net:
+    driver: overlay # Swarm 模式下必须使用 overlay 网络
+
+# 定义服务
+services:
+  # --- Redis 服务（主从节点）---
+  redis:
+    image: redis:6.2-alpine
+    hostname: redis-node-{{.Task.Slot}} # 方便识别每个节点的名称
+    command: redis-server /usr/local/etc/redis/redis.conf
+    volumes:
+      # 挂载自定义的 redis 配置文件
+      - ./redis/redis.conf:/usr/local/etc/redis/redis.conf
+      # 挂载数据持久化目录
+      - redis_data:/data
+    networks:
+      - redis_net
+    deploy:
+      mode: replicated # 复制模式
+      replicas: 3 # 1 个主节点 + 2 个从节点
+      placement:
+        # 确保每个节点部署在不同的机器上 (如果是多节点 Swarm)
+        constraints: [node.role == manager | node.role == worker]
+      restart_policy:
+        condition: on-failure
+
+  # --- Sentinel 服务（高可用监控）---
+  sentinel:
+    image: redis:6.2-alpine
+    hostname: sentinel-node-{{.Task.Slot}}
+    command: redis-sentinel /usr/local/etc/redis/sentinel.conf
+    volumes:
+      # 挂载自定义的 sentinel 配置文件
+      - ./redis/sentinel.conf:/usr/local/etc/redis/sentinel.conf
+    ports:
+      # 暴露 Sentinel 默认端口 26379，以便外部应用程序连接获取主节点信息
+      - "26379:26379"
+    networks:
+      - redis_net
+    deploy:
+      mode: replicated
+      replicas: 3 # 部署 3 个 Sentinel 节点，以保证仲裁
+      placement:
+        constraints: [node.role == manager | node.role == worker]
+      restart_policy:
+        condition: on-failure
+
+# 数据卷定义（用于持久化 Redis 数据）
+volumes:
+  redis_data:
+    driver: local

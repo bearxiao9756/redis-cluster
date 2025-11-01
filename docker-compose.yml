@@ -1,0 +1,101 @@
+# docker-compose.yml
+version: '3.8'
+
+# 定义一个自定义网络，让所有容器在同一个网络下
+networks:
+  redis-cluster-net:
+    driver: bridge
+
+services:
+  # 节点 1 (端口 7001)
+  redis-1:
+    image: redis:7.0.12-alpine
+    container_name: redis-cluster-7001
+    command: redis-server /usr/local/etc/redis/redis.conf --port 7001
+    volumes:
+      - ./redis.conf:/usr/local/etc/redis/redis.conf
+      - redis-data-7001:/data
+    ports:
+      - "7001:7001"    # 服务端口
+      - "17001:17001"  # 集群总线端口 (7001 + 10000)
+    networks:
+      - redis-cluster-net
+
+  # 节点 2 (端口 7002)
+  redis-2:
+    image: redis:7.0.12-alpine
+    container_name: redis-cluster-7002
+    command: redis-server /usr/local/etc/redis/redis.conf --port 7002
+    volumes:
+      - ./redis.conf:/usr/local/etc/redis/redis.conf
+      - redis-data-7002:/data
+    ports:
+      - "7002:7002"
+      - "17002:17002"
+    networks:
+      - redis-cluster-net
+
+  # 节点 3 (端口 7003)
+  redis-3:
+    image: redis:7.0.12-alpine
+    container_name: redis-cluster-7003
+    command: redis-server /usr/local/etc/redis/redis.conf --port 7003
+    volumes:
+      - ./redis.conf:/usr/local/etc/redis/redis.conf
+      - redis-data-7003:/data
+    ports:
+      - "7003:7003"
+      - "17003:17003"
+    networks:
+      - redis-cluster-net
+      
+  # 节点 4 (端口 7004)
+  redis-4:
+    image: redis:7.0.12-alpine
+    container_name: redis-cluster-7004
+    command: redis-server /usr/local/etc/redis/redis.conf --port 7004
+    volumes:
+      - ./redis.conf:/usr/local/etc/redis/redis.conf
+      - redis-data-7004:/data
+    ports:
+      - "7004:7004"
+      - "17004:17004"
+    networks:
+      - redis-cluster-net
+
+  # 节点 5 (端口 7005)
+  redis-5:
+    image: redis:7.0.12-alpine
+    container_name: redis-cluster-7005
+    command: redis-server /usr/local/etc/redis/redis.conf --port 7005
+    volumes:
+      - ./redis.conf:/usr/local/etc/redis/redis.conf
+      - redis-data-7005:/data
+    ports:
+      - "7005:7005"
+      - "17005:17005"
+    networks:
+      - redis-cluster-net
+
+  # 节点 6 (端口 7006)
+  redis-6:
+    image: redis:7.0.12-alpine
+    container_name: redis-cluster-7006
+    command: redis-server /usr/local/etc/redis/redis.conf --port 7006
+    volumes:
+      - ./redis.conf:/usr/local/etc/redis/redis.conf
+      - redis-data-7006:/data
+    ports:
+      - "7006:7006"
+      - "17006:17006"
+    networks:
+      - redis-cluster-net
+
+# 定义数据卷以实现持久化
+volumes:
+  redis-data-7001:
+  redis-data-7002:
+  redis-data-7003:
+  redis-data-7004:
+  redis-data-7005:
+  redis-data-7006:
