@@ -7,7 +7,7 @@ services:
     container_name: my-redis
     restart: always
     ports:
-      - "6379:6379"
+      - "9379:6379"
     command: redis-server --requirepass your_strong_password  # 设置密码，请替换为您自己的强密码
     environment:
       # 在 RedisInsight 服务中，可以使用 'redis' 作为主机名
