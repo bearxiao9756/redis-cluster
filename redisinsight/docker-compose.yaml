@@ -19,7 +19,7 @@ services:
     container_name: redisinsight
     restart: always
     ports:
-      - "8001:8001"  # 将容器的 8001 端口映射到宿主机的 8001 端口
+      - "5540:5540"  # 将容器的 8001 端口映射到宿主机的 8001 端口
     volumes:
       - redisinsight-data:/data  # RedisInsight 本身的数据和连接配置持久化
     # 确保 RedisInsight 与 Redis 在同一个 Docker 网络中
